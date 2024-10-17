@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_env_filter(EnvFilter::from_default_env())
         .try_init();
 
-    let ipfs_path = get_ipfs_path();
+    /*let ipfs_path = get_ipfs_path();
     println!("using IPFS_PATH {ipfs_path:?}");
     let psk: Option<PreSharedKey> = get_psk(&ipfs_path)?
         .map(|text| PreSharedKey::from_str(&text))
@@ -78,7 +78,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     if let Some(psk) = psk {
         println!("using swarm key with fingerprint: {}", psk.fingerprint());
-    }
+    }*/
+    let psk = None;
 
     // Create a Gosspipsub topic
     let gossipsub_topic = gossipsub::IdentTopic::new("chat");
