@@ -183,10 +183,12 @@ impl EventLoop {
                 },
             )) => peers.peers.iter().for_each(|peer| {
                 println!("Found peer: {peer:?}");
-                self.swarm
-                    .behaviour_mut()
-                    .kademlia
-                    .add_address(&peer.peer_id, peer.addrs.first().unwrap().clone());
+                if let Some(addr) = peer.addrs.first() {
+                    self.swarm
+                        .behaviour_mut()
+                        .kademlia
+                        .add_address(&peer.peer_id, addr.clone());
+                }
             }),
 
             SwarmEvent::Behaviour(BehaviourEvent::Kademlia(kad)) => {}
@@ -279,15 +281,6 @@ impl EventLoop {
             )) => {}
             SwarmEvent::NewListenAddr { address, .. } => {
                 let local_peer_id = *self.swarm.local_peer_id();
-
-                self.swarm
-                    .behaviour_mut()
-                    .kademlia
-                    .add_address(&local_peer_id, address.clone());
-                self.swarm
-                    .behaviour_mut()
-                    .kademlia
-                    .get_closest_peers(local_peer_id);
 
                 eprintln!(
                     "Local node is listening on {:?}",
@@ -405,6 +398,11 @@ impl EventLoop {
                 }
             }
             Command::StartProviding { file_hash, sender } => {
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .get_closest_peers(PeerId::random());
+
                 let query_id = self
                     .swarm
                     .behaviour_mut()
@@ -426,6 +424,11 @@ impl EventLoop {
                 peer,
                 sender,
             } => {
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .get_closest_peers(PeerId::random());
+
                 let request_id = self
                     .swarm
                     .behaviour_mut()
@@ -434,6 +437,11 @@ impl EventLoop {
                 self.pending_request_file.insert(request_id, sender);
             }
             Command::RespondFile { file, channel } => {
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .get_closest_peers(PeerId::random());
+
                 self.swarm
                     .behaviour_mut()
                     .request_response
