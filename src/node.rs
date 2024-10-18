@@ -263,11 +263,17 @@ impl EventLoop {
             )) => {}
             SwarmEvent::NewListenAddr { address, .. } => {
                 let local_peer_id = *self.swarm.local_peer_id();
-                self.swarm.behaviour_mut().kademlia.add_address(&local_peer_id, address.clone());
+
+                //self.swarm.behaviour_mut().kademlia.add_address(&local_peer_id, address.clone());
+                let target_peer = PeerId::random();
+                self.swarm.behaviour_mut().kademlia.get_closest_peers(target_peer);
+
+
                 eprintln!(
                     "Local node is listening on {:?}",
                     address.with(Protocol::P2p(local_peer_id))
                 );
+
             }
             SwarmEvent::IncomingConnection { .. } => {}
             SwarmEvent::ConnectionEstablished {
