@@ -123,6 +123,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
 
         if line == "g" {
+            println!("START GETTING");
             // Locate all nodes providing the file.
             let hash = myfile.hash();
             let providers = network_client.get_providers(hash).await;

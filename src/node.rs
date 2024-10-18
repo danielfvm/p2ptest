@@ -123,12 +123,12 @@ pub async fn new(
         .gossipsub
         .subscribe(&gossipsub_topic)
         .unwrap();
+    */
 
     swarm
         .behaviour_mut()
         .kademlia
         .set_mode(Some(kad::Mode::Server));
-    */
 
     let (command_sender, command_receiver) = mpsc::channel(0);
     let (event_sender, event_receiver) = mpsc::channel(0);
