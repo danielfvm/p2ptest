@@ -122,6 +122,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
         }
 
+        if line == "s" {
+            network_client.search();
+        }
+
         if line == "g" {
             println!("START GETTING");
             // Locate all nodes providing the file.

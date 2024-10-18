@@ -398,10 +398,6 @@ impl EventLoop {
                 }
             }
             Command::StartProviding { file_hash, sender } => {
-                self.swarm
-                    .behaviour_mut()
-                    .kademlia
-                    .get_closest_peers(PeerId::random());
 
                 let query_id = self
                     .swarm
@@ -424,10 +420,6 @@ impl EventLoop {
                 peer,
                 sender,
             } => {
-                self.swarm
-                    .behaviour_mut()
-                    .kademlia
-                    .get_closest_peers(PeerId::random());
 
                 let request_id = self
                     .swarm
@@ -439,14 +431,15 @@ impl EventLoop {
             Command::RespondFile { file, channel } => {
                 self.swarm
                     .behaviour_mut()
-                    .kademlia
-                    .get_closest_peers(PeerId::random());
-
-                self.swarm
-                    .behaviour_mut()
                     .request_response
                     .send_response(channel, FileResponse(file))
                     .expect("Connection to peer to be still open.");
+            }
+            Command::Search { .. } => {
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .get_closest_peers(PeerId::random());
             }
         }
     }

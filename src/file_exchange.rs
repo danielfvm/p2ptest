@@ -71,6 +71,15 @@ impl Client {
         receiver.await.expect("Sender not to be dropped.")
     }
 
+
+    pub async fn search(&mut self) {
+        let (sender, receiver) = oneshot::channel();
+        self.sender
+            .send(Command::Search { sender })
+            .await
+            .expect("Command receiver not to be dropped.");
+    }
+
     /// Request the content of the given file from the given peer.
     pub async fn request_file(
         &mut self,
@@ -104,6 +113,9 @@ impl Client {
 
 #[derive(Debug)]
 pub enum Command {
+    Search {
+        sender: oneshot::Sender<Result<(), Box<dyn Error + Send>>>,
+    },
     StartListening {
         addr: Multiaddr,
         sender: oneshot::Sender<Result<(), Box<dyn Error + Send>>>,
