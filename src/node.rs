@@ -34,9 +34,10 @@ use crate::{
 
 #[derive(NetworkBehaviour)]
 struct Behaviour {
-    gossipsub: gossipsub::Behaviour,
+    /*gossipsub: gossipsub::Behaviour,
     identify: identify::Behaviour,
     ping: ping::Behaviour,
+    */
     kademlia: kad::Behaviour<kad::store::MemoryStore>,
     request_response: request_response::cbor::Behaviour<FileRequest, FileResponse>,
 }
@@ -90,7 +91,7 @@ pub async fn new(
                     key.public().to_peer_id(),
                     kad::store::MemoryStore::new(key.public().to_peer_id()),
                 ),
-                gossipsub: gossipsub::Behaviour::new(
+                /*gossipsub: gossipsub::Behaviour::new(
                     gossipsub::MessageAuthenticity::Signed(key.clone()),
                     gossipsub_config,
                 )
@@ -99,7 +100,7 @@ pub async fn new(
                     "/ipfs/0.1.0".into(),
                     key.public(),
                 )),
-                ping: ping::Behaviour::new(ping::Config::new()),
+                ping: ping::Behaviour::new(ping::Config::new()),*/
                 request_response: request_response::cbor::Behaviour::new(
                     [(
                         StreamProtocol::new("/file-exchange/1"),
@@ -113,6 +114,7 @@ pub async fn new(
         .build();
 
     // Create a Gosspipsub topic
+    /*
     let gossipsub_topic = gossipsub::IdentTopic::new("chat");
 
     println!("Subscribing to {gossipsub_topic:?}");
@@ -126,6 +128,7 @@ pub async fn new(
         .behaviour_mut()
         .kademlia
         .set_mode(Some(kad::Mode::Server));
+    */
 
     let (command_sender, command_receiver) = mpsc::channel(0);
     let (event_sender, event_receiver) = mpsc::channel(0);
@@ -183,6 +186,7 @@ impl EventLoop {
                     .remove(&id)
                     .expect("Completed query to be previously pending.");
                 let _ = sender.send(());
+                println!("FINISHED REQUEST");
             }
             SwarmEvent::Behaviour(BehaviourEvent::Kademlia(
                 kad::Event::OutboundQueryProgressed {
@@ -195,6 +199,7 @@ impl EventLoop {
                     ..
                 },
             )) => {
+                println!("recv response!");
                 if let Some(sender) = self.pending_get_providers.remove(&id) {
                     sender.send(providers).expect("Receiver not to be dropped");
 
@@ -290,7 +295,7 @@ impl EventLoop {
             SwarmEvent::NewListenAddr { address, .. } => {
                 println!("Listening on {address:?}");
             }
-            SwarmEvent::Behaviour(BehaviourEvent::Identify(event)) => {
+         /*   SwarmEvent::Behaviour(BehaviourEvent::Identify(event)) => {
                 println!("identify: {event:?}");
             }
             SwarmEvent::Behaviour(BehaviourEvent::Gossipsub(gossipsub::Event::Message {
@@ -338,7 +343,7 @@ impl EventLoop {
                 } => {
                     println!("ping: ping::Failure with {}: {error}", peer.to_base58());
                 }
-            },
+            },*/
 
             e => (),
         }

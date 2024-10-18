@@ -1,3 +1,5 @@
+// https://stackoverflow.com/questions/44905867/kademlia-closest-good-nodes-wont-intersect-enough-between-two-requests
+
 mod file_exchange;
 mod node;
 mod store;
@@ -33,7 +35,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await
         .map_err(|e| format!("{:?}", e))?;
     // test.insert(myfile.clone()).await.map_err(|e| format!("{:?}", e))?;
-    println!("{}", test.get(myfile.hash()).await.unwrap().name);
+    //println!("{}", test.get(myfile.hash()).await.unwrap().name);
 
     let _ = tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
@@ -67,7 +69,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     network_client
                         .dial(peer_id, addr)
                         .await
-                        .map_err(|e| format!("{:?}", e))?;
+                        .map_err(|e| format!("{:?}", e))?; // disable
                 }
             }
         }
@@ -93,6 +95,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
 
         if line == "p" {
+            println!("START PROVIDING");
+
             // Advertise oneself as a provider of the file on the DHT.
             let hash = myfile.hash();
             network_client.start_providing(hash).await;
