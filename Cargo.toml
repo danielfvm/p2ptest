@@ -4,10 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-libp2p = { version = "0.54.1", features = [ "tokio", "gossipsub", "dns", "identify", "kad", "macros", "noise", "ping", "pnet", "tcp", "websocket", "yamux" ] }
+base64 = "0.22.1"
+libp2p = { version = "0.54.1", features = [ "tokio", "gossipsub", "dns", "identify", "request-response", "cbor", "kad", "macros", "noise", "ping", "pnet", "tcp", "websocket", "yamux" ] }
 tokio = { version = "*", features = ["rt-multi-thread", "macros", "io-std"] }
 async-trait = "0.1"
 either = "1.12"
 futures = "*"
 tracing = "*"
 tracing-subscriber = { version = "*", features = [ "env-filter" ] }
+serde = { version = "1.0", features = ["derive"] }
+tokio-rusqlite = "0.6.0"
+rusqlite = { version = "0.32.1", features = ["bundled"] }
+sha2 = "0.10.8"
