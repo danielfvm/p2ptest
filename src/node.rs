@@ -3,7 +3,9 @@ use either::Either;
 use futures::prelude::*;
 use libp2p::{
     core::transport::upgrade::Version,
-    gossipsub, identify, identity::{self, Keypair}, kad,
+    gossipsub, identify,
+    identity::{self, Keypair},
+    kad,
     multiaddr::Protocol,
     noise, ping,
     pnet::PnetConfig,
@@ -264,16 +266,19 @@ impl EventLoop {
             SwarmEvent::NewListenAddr { address, .. } => {
                 let local_peer_id = *self.swarm.local_peer_id();
 
-                //self.swarm.behaviour_mut().kademlia.add_address(&local_peer_id, address.clone());
-                let target_peer = PeerId::random();
-                self.swarm.behaviour_mut().kademlia.get_closest_peers(target_peer);
-
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .add_address(&local_peer_id, address.clone());
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .get_closest_peers(local_peer_id);
 
                 eprintln!(
                     "Local node is listening on {:?}",
                     address.with(Protocol::P2p(local_peer_id))
                 );
-
             }
             SwarmEvent::IncomingConnection { .. } => {}
             SwarmEvent::ConnectionEstablished {
@@ -302,7 +307,7 @@ impl EventLoop {
             SwarmEvent::NewListenAddr { address, .. } => {
                 println!("Listening on {address:?}");
             }
-         /*   SwarmEvent::Behaviour(BehaviourEvent::Identify(event)) => {
+            /*   SwarmEvent::Behaviour(BehaviourEvent::Identify(event)) => {
                 println!("identify: {event:?}");
             }
             SwarmEvent::Behaviour(BehaviourEvent::Gossipsub(gossipsub::Event::Message {
@@ -351,7 +356,6 @@ impl EventLoop {
                     println!("ping: ping::Failure with {}: {error}", peer.to_base58());
                 }
             },*/
-
             e => (),
         }
     }
