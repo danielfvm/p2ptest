@@ -178,6 +178,20 @@ impl EventLoop {
         match event {
             SwarmEvent::Behaviour(BehaviourEvent::Kademlia(
                 kad::Event::OutboundQueryProgressed {
+                    result: kad::QueryResult::GetClosestPeers(Ok(peers)),
+                    ..
+                },
+            )) => peers.peers.iter().for_each(|peer| {
+                println!("Found peer: {peer:?}");
+                self.swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .add_address(&peer.peer_id, peer.addrs.first().unwrap().clone());
+            }),
+
+            SwarmEvent::Behaviour(BehaviourEvent::Kademlia(kad)) => {}
+            SwarmEvent::Behaviour(BehaviourEvent::Kademlia(
+                kad::Event::OutboundQueryProgressed {
                     id,
                     result: kad::QueryResult::StartProviding(_),
                     ..
