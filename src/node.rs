@@ -340,7 +340,7 @@ impl EventLoop {
                 }
             },
 
-            e => panic!("{e:?}"),
+            e => (),
         }
     }
 

@@ -12,7 +12,7 @@ use libp2p::{
     swarm::{NetworkBehaviour, SwarmEvent},
     tcp, yamux, Multiaddr, StreamProtocol, Transport,
 };
-use std::{env, error::Error, sync::Arc, time::Duration};
+use std::{env, error::Error, io::Write, sync::Arc, time::Duration};
 use tokio::{
     io::{self, AsyncBufReadExt},
     select, spawn,
@@ -90,6 +90,55 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         if line == "q" || line == "quit" {
             break;
+        }
+
+        if line == "p" {
+            // Advertise oneself as a provider of the file on the DHT.
+            let hash = myfile.hash();
+            network_client.start_providing(hash).await;
+
+            loop {
+                match network_events.next().await {
+                    // Reply with the content of the file on incoming requests.
+                    Some(node::Event::InboundRequest { request, channel }) => {
+                        if request == hash {
+                            network_client
+                                .respond_file(
+                                    store::File {
+                                        data: myfile.data.clone(),
+                                        name: myfile.name.clone(),
+                                    },
+                                    channel,
+                                )
+                                .await;
+                        }
+                    }
+                    e => todo!("{:?}", e),
+                }
+            }
+        }
+
+        if line == "g" {
+            // Locate all nodes providing the file.
+            let hash = myfile.hash();
+            let providers = network_client.get_providers(hash).await;
+            if providers.is_empty() {
+                return Err(format!("Could not find provider for file.").into());
+            }
+
+            // Request the content of the file from each node.
+            let requests = providers.into_iter().map(|p| {
+                let mut network_client = network_client.clone();
+                async move { network_client.request_file(p, hash).await }.boxed()
+            });
+
+            // Await the requests, ignore the remaining once a single one succeeds.
+            let file_content = futures::future::select_ok(requests)
+                .await
+                .map_err(|_| "None of the providers returned file.")?
+                .0;
+
+            std::io::stdout().write_all(&file_content.data)?;
         }
     }
 
