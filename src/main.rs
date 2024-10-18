@@ -123,7 +123,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
 
         if line == "s" {
-            network_client.search();
+            network_client.search().await;
         }
 
         if line == "g" {
