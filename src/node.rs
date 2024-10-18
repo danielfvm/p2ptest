@@ -190,8 +190,6 @@ impl EventLoop {
                         .add_address(&peer.peer_id, addr.clone());
                 }
             }),
-
-            SwarmEvent::Behaviour(BehaviourEvent::Kademlia(kad)) => {}
             SwarmEvent::Behaviour(BehaviourEvent::Kademlia(
                 kad::Event::OutboundQueryProgressed {
                     id,
