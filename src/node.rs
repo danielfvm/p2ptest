@@ -208,6 +208,16 @@ impl EventLoop {
                 kad::Event::OutboundQueryProgressed {
                     id,
                     result:
+                        kad::QueryResult::GetRecord(Ok(record)),
+                    ..
+                },
+            )) => {
+                println!("recv record: {record:?}");
+            }
+            SwarmEvent::Behaviour(BehaviourEvent::Kademlia(
+                kad::Event::OutboundQueryProgressed {
+                    id,
+                    result:
                         kad::QueryResult::GetProviders(Ok(kad::GetProvidersOk::FoundProviders {
                             providers,
                             ..
@@ -406,6 +416,14 @@ impl EventLoop {
                 self.pending_start_providing.insert(query_id, sender);
             }
             Command::GetProviders { file_hash, sender } => {
+
+                // test
+                let _query_id = self
+                    .swarm
+                    .behaviour_mut()
+                    .kademlia
+                    .get_record(file_hash.to_vec().into());
+
                 let query_id = self
                     .swarm
                     .behaviour_mut()
